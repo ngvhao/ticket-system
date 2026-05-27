@@ -1,0 +1,13 @@
+{
+  "name": "ticket-system",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w web\" \"npm run dev -w api\"",
+    "dev:web": "npm run dev -w web",
+    "dev:api": "npm run dev -w api"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
