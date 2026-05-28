@@ -1,8 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as dotenv from 'dotenv';
+import { ResponseInterceptor } from './interceptor/response.interceptor';
+import { HttpExceptionFilter } from './exeptions/global.exception';
+
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new ResponseInterceptor());
+  
+  await app.listen(process.env.PORT);
 }
 bootstrap();

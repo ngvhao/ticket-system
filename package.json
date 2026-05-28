@@ -3,8 +3,8 @@
   "private": true,
   "workspaces": ["apps/*"],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w web\" \"npm run dev -w api\"",
-    "dev:web": "npm run dev -w web",
+    "dev": "concurrently \"npm run dev -w web\" \"npm run start:dev -w api\"",
+    "dev:web": "npm run start:dev -w web",
     "dev:api": "npm run dev -w api"
   },
   "devDependencies": {
