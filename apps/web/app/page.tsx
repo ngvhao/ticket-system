@@ -1,65 +1,98 @@
-import Image from "next/image";
+import Link from "next/link";
+import { SiteHeader } from "@/components/home/site-header";
+import { FeatureGrid } from "@/components/home/feature-grid";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex min-h-full flex-col bg-[var(--color-canvas)]">
+      <SiteHeader />
+
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="mx-auto max-w-7xl px-4 pb-16 pt-16 sm:px-6 sm:pt-24 lg:px-8 lg:pb-24">
+          <div className="max-w-3xl">
+            <p className="eyebrow">Hệ thống bán vé</p>
+            <h1 className="display-md mt-4">
+              Đặt vé sự kiện
+              <span className="text-[var(--color-ink-muted)]"> — nhanh, an toàn, realtime.</span>
+            </h1>
+            <p className="subhead mt-6 max-w-xl">
+              Chọn sự kiện, gửi yêu cầu đặt vé vào hàng đợi và nhận thông báo kết
+              quả qua WebSocket — không cần chờ reload.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link href="/booking" className="btn-primary px-5">
+                Xem sự kiện
+              </Link>
+              <Link href="/booking" className="btn-secondary">
+                Bắt đầu đặt vé
+              </Link>
+            </div>
+          </div>
+
+          {/* Product panel — preview strip */}
+          <div
+            className="mt-16 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-hairline)] bg-[var(--color-surface-1)] p-6 sm:p-8"
+            style={{
+              boxShadow: "inset 0 1px 0 color-mix(in srgb, white 4%, transparent)",
+            }}
+          >
+            <div className="mb-4 flex items-center justify-between border-b border-[var(--color-hairline)] pb-4">
+              <span className="caption">Preview · Booking flow</span>
+              <span className="status-badge status-badge-success">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-semantic-success)]" />
+                API ready
+              </span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <PreviewTile label="GET /event" value="Danh sách sự kiện" />
+              <PreviewTile label="POST /booking" value="Đặt vé → jobId" />
+              <PreviewTile label="WS :3001" value="notification event" />
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="border-t border-[var(--color-hairline)] bg-[var(--color-canvas)]">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+            <FeatureGrid />
+          </div>
+        </section>
+
+        {/* CTA banner */}
+        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8 lg:pb-24">
+          <div className="cta-banner flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="headline">Sẵn sàng đặt vé?</h2>
+              <p className="body-lg mt-2 max-w-md">
+                Khám phá các sự kiện đang mở bán và trải nghiệm luồng đặt vé
+                tích hợp API.
+              </p>
+            </div>
+            <Link href="/booking" className="btn-primary shrink-0 px-6">
+              Đi tới trang đặt vé →
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p>Ticket System · Monorepo demo</p>
+          <p className="text-[var(--color-ink-tertiary)]">
+            NestJS API · Next.js Web · Redis Queue · Socket.IO
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </footer>
+    </div>
+  );
+}
+
+function PreviewTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[var(--radius-md)] border border-[var(--color-hairline)] bg-[var(--color-surface-2)] px-4 py-3">
+      <p className="font-mono text-xs text-[var(--color-primary)]">{label}</p>
+      <p className="body-sm mt-1 text-[var(--color-ink)]">{value}</p>
     </div>
   );
 }

@@ -1,0 +1,27 @@
+---
+description: Apply repo DESIGN.md tokens when building or editing apps/web UI
+globs: apps/web/**/*
+alwaysApply: false
+---
+
+# Design system (apps/web)
+
+Before creating or modifying UI under `apps/web`, read `DESIGN.md` at the repository root.
+
+## Workflow
+
+1. Open and read `DESIGN.md` — colors, typography, spacing, `rounded`, and `components` tokens.
+2. Implement using those token names, not ad-hoc Tailwind palette choices (e.g. no `indigo-600`, `zinc-50` marketing surfaces).
+3. Prefer CSS variables defined in `apps/web/app/globals.css`; extend that file when a token is missing.
+4. Reference components by their front-matter names: `button-primary`, `feature-card`, `text-input`, `status-badge`, `top-nav`, etc.
+
+## Rules
+
+- **Canvas**: `{colors.canvas}` (#010102) page background; text `{colors.ink}` (#f7f8f8).
+- **Accent**: `{colors.primary}` (#5e6ad2) only for primary CTA, focus rings, links — never as card fills or section backgrounds.
+- **Surfaces**: `{colors.surface-1}` cards with `{colors.hairline}` borders; lift via surface ladder, not drop shadows.
+- **Radius**: buttons/inputs `{rounded.md}` (8px); cards `{rounded.lg}` (12px).
+- **Semantic**: `{colors.semantic-success}` for success states; avoid extra chromatic badge colors.
+- **Don't**: light mode, gradients, pill primary CTAs, or skipping the design doc when touching UI.
+
+See also `apps/web/AGENTS.md` and the project skill `.cursor/skills/design-system/SKILL.md`.

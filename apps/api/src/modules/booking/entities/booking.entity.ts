@@ -1,16 +1,21 @@
-import { EventEntity } from 'src/modules/event/entities/event.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { EventEntity } from '@/modules/event/entities/event.entity';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('bookings')
 export class BookingEntity {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+
+  @Column({ name: 'event_id' })
   eventId: number;
-  @Column()
+
+  @Column({ name: 'user_id' })
   userId: number;
 
+  @Column({ name: 'quantity' })
+  quantity: number;
 
   @ManyToOne(() => EventEntity, (event) => event.bookings)
+  @JoinColumn({ name: 'event_id' })
   event: EventEntity;
 }
