@@ -11,6 +11,8 @@ import { useNotificationSocket } from "@/hooks/use-notification-socket";
 import { createBooking, getApiErrorMessage } from "@/lib/api";
 import type { Event, PendingBooking } from "@/lib/types";
 import { useState } from "react";
+import { randomInt } from "crypto";
+import useAuth from "@/hooks/use-auth";
 
 interface BookingContextValue {
   connected: boolean;

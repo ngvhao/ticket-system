@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import type { NotificationMessage } from "@/lib/types";
+import useAuth from "./use-auth";
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "http://localhost:3001";
 
 export function useNotificationSocket() {
+  const { user } = useAuth(); // Ensure user is authenticated before connecting to WebSocket
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [notifications, setNotifications] = useState<NotificationMessage[]>(
@@ -34,6 +36,9 @@ export function useNotificationSocket() {
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
+      auth: {
+        userId: user?.id, // Pass user ID for personalized notifications
+      }
     });
 
     socketRef.current = socket;

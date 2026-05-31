@@ -7,7 +7,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ event }: EventCardProps) {
-  const soldOut = event.inventory <= 0;
+  const soldOut = event.remainingInventory <= 0;
 
   return (
     <Link
@@ -21,10 +21,10 @@ export function EventCard({ event }: EventCardProps) {
         <span
           className={[
             "status-badge shrink-0",
-            !soldOut && event.inventory > 0 ? "status-badge-success" : "",
+            !soldOut && event.remainingInventory > 0 ? "status-badge-success" : "",
           ].join(" ")}
         >
-          {soldOut ? "Hết vé" : `Còn ${event.inventory} vé`}
+          {soldOut ? "Hết vé" : `Còn ${event.remainingInventory} vé`}
         </span>
       </div>
 

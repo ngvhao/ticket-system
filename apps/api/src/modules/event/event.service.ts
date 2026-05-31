@@ -34,19 +34,25 @@ export class EventService {
     }
   }
 
-  findAll() {
-    return this.eventRepository.find({ relations: ['bookings'] });
+  async findAll() {
+    const events = await this.eventRepository.find({ relations: ['bookings'] });
+    const results = events.map(event => ({
+      ...event,
+      remainingInventory: event.inventory - (event.bookings?.reduce((sum, b) => sum + b.quantity, 0) || 0)
+    }));
+    return results;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<EventEntity & { remainingInventory: number }> {
     const event = await this.eventRepository.findOne({
       where: { id },
       relations: ['bookings'],
     });
+    const res = { ...event, remainingInventory: event.inventory - (event.bookings?.reduce((sum, b) => sum + b.quantity, 0) || 0) };
     if (!event) {
       throw new NotFoundException(`Event with ID ${id} not found`);
     }
-    return event;
+    return res;
   }
 
   async update(id: number, updateEventDto: UpdateEventDto) {

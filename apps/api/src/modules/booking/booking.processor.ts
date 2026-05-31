@@ -37,6 +37,7 @@ export class BookingProcessor extends WorkerHost {
       );
       this.notificationService.sendNotification(
         `Số lượng vé đã hết. Hẹn gặp lại bạn trong những sự kiện tiếp theo!`,
+        userId
       );
       return 'failed';
     }
@@ -52,6 +53,7 @@ export class BookingProcessor extends WorkerHost {
       );
       this.notificationService.sendNotification(
         `Chúc mừng! Đặt vé thành công cho sự kiện ${eventId}, số lượng ${quantity}`,
+        userId
       );
       return ticket;
     } catch (err) {
@@ -62,6 +64,7 @@ export class BookingProcessor extends WorkerHost {
       );
       this.notificationService.sendNotification(
         `Đặt vé thất bại cho sự kiện ${eventId}. Vui lòng thử lại.`,
+        userId
       );
       return 'failed';
     }

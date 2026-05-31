@@ -6,8 +6,6 @@ import { CreateBookingDto } from './dtos/create-booking.dto';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 import Redis from 'ioredis';
-import { DataSource } from 'typeorm';
-import { EventEntity } from '../event/entities/event.entity';
 
 @Injectable()
 export class BookingService {
@@ -17,7 +15,6 @@ export class BookingService {
     @InjectQueue('booking')
     private readonly bookingQueue: Queue,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
-    private readonly dataSource: DataSource,
   ) {}
 
   async createBooking(createBookingDto: CreateBookingDto) {
@@ -71,29 +68,6 @@ export class BookingService {
   async create(createBookingDto: CreateBookingDto): Promise<BookingEntity> {
     const booking = this.bookingRepository.create(createBookingDto);
     return this.bookingRepository.save(booking);
-  }
-
-  async handleCreateAndDecreaseInventory(
-    createBookingDto: CreateBookingDto,
-  ): Promise<BookingEntity> {
-    const transactionalEntityManager = this.dataSource.manager;
-    return await transactionalEntityManager.transaction(async (manager) => {
-      const { eventId, quantity } = createBookingDto;
-      const booking = manager.create(BookingEntity, createBookingDto);
-      const savedBooking = await manager.save(booking);
-      const reserved = await this.tryReverseInventory(eventId, quantity);
-      if (!reserved) {
-        throw new Error('Insufficient inventory');
-      }
-      //decrease inventory in database table events
-      await manager.update(
-        EventEntity,
-        { id: eventId },
-        { inventory: () => `inventory - ${quantity}` },
-      );
-
-      return savedBooking;
-    });
   }
 
   async findAll(): Promise<BookingEntity[]> {

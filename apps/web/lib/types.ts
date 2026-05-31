@@ -4,6 +4,7 @@ export interface Event {
   date: string;
   location: string;
   inventory: number;
+  remainingInventory: number;
 }
 
 export interface ApiResponse<T> {

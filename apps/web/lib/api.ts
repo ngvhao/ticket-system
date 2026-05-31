@@ -19,6 +19,7 @@ function normalizeEvent(raw: Record<string, unknown>): Event {
         : new Date(date as string | number).toISOString(),
     location: String(raw.location),
     inventory: Number(raw.inventory ?? 0),
+    remainingInventory: Number(raw.remainingInventory ?? 0),
   };
 }
 

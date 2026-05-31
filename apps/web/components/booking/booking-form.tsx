@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Event } from "@/lib/types";
 import { formatEventDate } from "@/lib/format";
+import useAuth from "@/hooks/use-auth";
 
 interface BookingFormProps {
   event: Event | null;
@@ -11,7 +12,7 @@ interface BookingFormProps {
 }
 
 export function BookingForm({ event, loading, onSubmit }: BookingFormProps) {
-  const [userId, setUserId] = useState("1");
+  const { user } = useAuth(); // Get authenticated user info
   const [quantity, setQuantity] = useState("1");
 
   if (!event) {
@@ -28,12 +29,12 @@ export function BookingForm({ event, loading, onSubmit }: BookingFormProps) {
     );
   }
 
-  const maxQty = Math.max(1, event.inventory);
+  const maxQty = Math.max(0, event.remainingInventory);
   const parsedQty = Math.min(Math.max(1, Number(quantity) || 1), maxQty);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const uid = Number(userId);
+    const uid = user?.id;
     if (!uid || uid < 1) return;
     onSubmit(uid, parsedQty);
   }
@@ -53,11 +54,11 @@ export function BookingForm({ event, loading, onSubmit }: BookingFormProps) {
             Mã người dùng
           </span>
           <input
+            disabled
             type="number"
             min={1}
             required
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
+            value={user?.id}
             className="text-input"
             placeholder="VD: 1"
           />

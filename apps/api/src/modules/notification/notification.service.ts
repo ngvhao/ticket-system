@@ -7,8 +7,8 @@ export class NotificationService {
         private readonly notificationGateway: NotificationGateway
     ) {}
 
-    sendNotification(notification: string) {
-        console.log(`Sending notification: ${notification}`);
-        this.notificationGateway.sendNotification(notification);
+    sendNotification(notification: string, userId: number) {
+        console.log(`Sending notification: ${notification} to user: ${userId}`);
+        this.notificationGateway.sendNotification(notification, userId);
     }
 }

@@ -6,7 +6,7 @@ interface EventDetailProps {
 }
 
 export function EventDetail({ event }: EventDetailProps) {
-  const soldOut = event.inventory <= 0;
+  const soldOut = event.remainingInventory <= 0;
 
   return (
     <article className="feature-card">
@@ -18,10 +18,10 @@ export function EventDetail({ event }: EventDetailProps) {
         <span
           className={[
             "status-badge",
-            !soldOut && event.inventory > 0 ? "status-badge-success" : "",
+            !soldOut && event.remainingInventory > 0 ? "status-badge-success" : "",
           ].join(" ")}
         >
-          {soldOut ? "Hết vé" : `Còn ${event.inventory} vé`}
+          {soldOut ? "Hết vé" : `Còn ${event.remainingInventory} vé`}
         </span>
       </div>
 
