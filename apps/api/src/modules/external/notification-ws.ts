@@ -1,5 +1,7 @@
 import {
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -14,7 +16,7 @@ import { Server, Socket } from 'socket.io';
     origin: '*',
   },
 })
-export class NotificationGateway {
+export class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect  {
   @WebSocketServer()
   server: Server;
 
@@ -28,7 +30,7 @@ export class NotificationGateway {
     return data;
   }
 
-  sendNotification(notification: string, userId: number) {
+  async sendNotification(notification: string, userId: number) {
     console.log(`Emitting notification: ${notification} to user: ${userId}`);
     this.server.to(`user:${userId}`).emit('notification', notification);
   }

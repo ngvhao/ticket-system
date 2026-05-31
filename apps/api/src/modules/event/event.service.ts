@@ -36,10 +36,15 @@ export class EventService {
 
   async findAll() {
     const events = await this.eventRepository.find({ relations: ['bookings'] });
-    const results = events.map(event => ({
-      ...event,
-      remainingInventory: event.inventory - (event.bookings?.reduce((sum, b) => sum + b.quantity, 0) || 0)
-    }));
+    const results = events.map(async event => {
+      const getRemainingInventory = await this.bookingService.getInventory(event.id);
+      const remaining = Math.min(getRemainingInventory, event.inventory - (event.bookings?.reduce((sum, b) => sum + b.quantity, 0) || 0));
+      const remainingInventory = remaining >= 0 ? remaining : 0;
+      return {
+        ...event,
+        remainingInventory
+      };
+    });
     return results;
   }
 
@@ -48,10 +53,13 @@ export class EventService {
       where: { id },
       relations: ['bookings'],
     });
-    const res = { ...event, remainingInventory: event.inventory - (event.bookings?.reduce((sum, b) => sum + b.quantity, 0) || 0) };
     if (!event) {
       throw new NotFoundException(`Event with ID ${id} not found`);
     }
+    const getRemainingInventory = await this.bookingService.getInventory(event.id);
+    const remaining = Math.min(getRemainingInventory, event.inventory - (event.bookings?.reduce((sum, b) => sum + b.quantity, 0) || 0));
+    const remainingInventory = remaining >= 0 ? remaining : 0;
+    const res = { ...event, remainingInventory };
     return res;
   }
 

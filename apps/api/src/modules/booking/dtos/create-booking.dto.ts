@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateBookingDto {
   @IsNotEmpty()
@@ -9,4 +9,7 @@ export class CreateBookingDto {
 
   @IsNotEmpty()
   quantity: number;
+
+  @IsOptional()
+  jobId: string;
 }

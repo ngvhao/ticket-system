@@ -23,50 +23,39 @@ export class BookingProcessor extends WorkerHost {
   }
 
   private async handleProcessBooking(job: Job) {
-    const { userId, eventId, quantity, jobId } = job.data;
-    console.log(
-      `Processing booking job ${jobId} for user ${userId}, event ${eventId}, quantity ${quantity}`,
-    );
-    const reserved = await this.bookingService.tryReverseInventory(
-      eventId,
-      quantity,
-    );
+    const { userId, eventId, quantity, jobId } = job.data
+
+    // 1. Idempotency — tránh duplicate khi retry
+    const existing = await this.bookingService.findByJobId(jobId)
+    if (existing) return existing
+
+    // 2. Atomic inventory check
+    const reserved = await this.bookingService.tryReverseInventory(eventId, quantity)
     if (!reserved) {
-      console.log(
-        `Booking failed for job ${jobId}: insufficient inventory for event ${eventId}`,
-      );
-      this.notificationService.sendNotification(
+      // Hết vé — kết quả cuối cùng, không retry
+      await this.notificationService.sendNotification(
         `Số lượng vé đã hết. Hẹn gặp lại bạn trong những sự kiện tiếp theo!`,
         userId
-      );
-      return 'failed';
+      )
+      return { status: 'sold_out' }
     }
 
     try {
-      const ticket = await this.bookingService.create({
-        userId,
-        eventId,
-        quantity,
-      });
-      console.log(
-        `Booking successful for job ${jobId}: created ticket with ID ${ticket.id}`,
-      );
-      this.notificationService.sendNotification(
-        `Chúc mừng! Đặt vé thành công cho sự kiện ${eventId}, số lượng ${quantity}`,
+      const ticket = await this.bookingService.create({ userId, eventId, quantity, jobId })
+      await this.notificationService.sendNotification(
+        `Chúc mừng! Đặt vé thành công cho sự kiện ${eventId}`,
         userId
-      );
-      return ticket;
+      )
+      return ticket
+
     } catch (err) {
       console.error(`Error processing booking job ${jobId}:`, err);
-      await this.bookingService.setInventory(
-        eventId,
-        (await this.bookingService.getInventory(eventId)) + quantity,
-      );
-      this.notificationService.sendNotification(
+      await this.bookingService.increaseInventory(eventId, quantity);
+      await this.notificationService.sendNotification(
         `Đặt vé thất bại cho sự kiện ${eventId}. Vui lòng thử lại.`,
         userId
       );
-      return 'failed';
+      throw err; // retry sẽ được tự động kích hoạt bởi BullMQ
     }
   }
 }

@@ -3,7 +3,7 @@ import { BookingEntity } from './entities/booking.entity';
 import { Repository } from 'typeorm/repository/Repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateBookingDto } from './dtos/create-booking.dto';
-import { Queue } from 'bullmq';
+import { increaseMaxListeners, Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
 import Redis from 'ioredis';
 
@@ -41,10 +41,9 @@ export class BookingService {
   ): Promise<boolean> {
     const script = `
       local stock = tonumber(redis.call('GET', KEYS[1]))
-      if stock == nil or stock < ${quantity} then
-        return 0
-      end
-      redis.call('DECRBY', KEYS[1], ${quantity})
+      local qty = tonumber(ARGV[1])
+      if stock == nil or stock < qty then return 0 end
+        redis.call('DECRBY', KEYS[1], qty)
       return 1
     `;
     const result = await this.redis.eval(
@@ -65,6 +64,10 @@ export class BookingService {
     await this.redis.set(`inventory:${eventId}:stock`, stock);
   }
 
+  async increaseInventory(eventId: number, quantity: number): Promise<void> {
+    await this.redis.incrby(`inventory:${eventId}:stock`, quantity);
+  }
+
   async create(createBookingDto: CreateBookingDto): Promise<BookingEntity> {
     const booking = this.bookingRepository.create(createBookingDto);
     return this.bookingRepository.save(booking);
@@ -77,6 +80,12 @@ export class BookingService {
   async findOne(id: number): Promise<BookingEntity> {
     return this.bookingRepository.findOne({
       where: { id },
+    });
+  }
+
+  async findByJobId(jobId: string): Promise<BookingEntity | null> {
+    return this.bookingRepository.findOne({
+      where: { jobId },
     });
   }
 }
