@@ -34,19 +34,43 @@ export class EventService {
     }
   }
 
-  async findAll() {
-    const events = await this.eventRepository.find({ relations: ['bookings'] });
-    const results = events.map(async event => {
-      const getRemainingInventory = await this.bookingService.getInventory(event.id);
-      const remaining = Math.min(getRemainingInventory, event.inventory - (event.bookings?.reduce((sum, b) => sum + b.quantity, 0) || 0));
-      const remainingInventory = remaining >= 0 ? remaining : 0;
+async findAll() {
+  const events = await this.eventRepository.find({
+    relations: ['bookings'],
+  });
+
+  return Promise.all(
+    events.map(async event => {
+      let remainingInventory =
+        await this.bookingService.getInventory(event.id);
+
+      // Redis miss -> rebuild từ DB
+      if (!remainingInventory) {
+        const bookedQuantity =
+          event.bookings?.reduce(
+            (sum, booking) => sum + booking.quantity,
+            0,
+          ) || 0;
+
+        remainingInventory = Math.max(
+          0,
+          event.inventory - bookedQuantity,
+        );
+
+        // đồng bộ lại Redis
+        await this.bookingService.setInventory(
+          event.id,
+          remainingInventory,
+        );
+      }
+
       return {
         ...event,
-        remainingInventory
+        remainingInventory: Number(remainingInventory),
       };
-    });
-    return results;
-  }
+    }),
+  );
+}
 
   async findOne(id: number): Promise<EventEntity & { remainingInventory: number }> {
     const event = await this.eventRepository.findOne({
