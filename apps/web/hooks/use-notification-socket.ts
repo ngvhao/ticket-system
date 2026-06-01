@@ -5,7 +5,7 @@ import { io, type Socket } from "socket.io-client";
 import type { NotificationMessage } from "@/lib/types";
 import useAuth from "./use-auth";
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "http://localhost:3001";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "http://localhost:8001";
 
 export function useNotificationSocket() {
   const { user } = useAuth(); // Ensure user is authenticated before connecting to WebSocket
@@ -31,14 +31,18 @@ export function useNotificationSocket() {
   );
 
   useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
+
     const socket = io(WS_URL, {
       transports: ["websocket", "polling"],
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
       auth: {
-        userId: user?.id, // Pass user ID for personalized notifications
-      }
+        userId: user.id, // Pass user ID for personalized notifications
+      },
     });
 
     socketRef.current = socket;
@@ -70,7 +74,7 @@ export function useNotificationSocket() {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [addNotification]);
+  }, [addNotification, user?.id]);
 
   const clearNotifications = useCallback(() => {
     setNotifications([]);
